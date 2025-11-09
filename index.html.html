@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AES Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      @keyframes glow {
+        0%, 100% { text-shadow: 0 0 5px #0ea5e9, 0 0 10px #0ea5e9, 0 0 15px #0ea5e9; }
+        50% { text-shadow: 0 0 10px #0284c7, 0 0 20px #0284c7, 0 0 30px #0284c7; }
+      }
+      .text-glow {
+        animation: glow 2.5s ease-in-out infinite;
+      }
+      @keyframes subtle-float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+      }
+      .subtle-float {
+        animation: subtle-float 4s ease-in-out infinite;
+      }
+      
+      /* --- Transitions & Animations --- */
+      button, input, select, textarea, .transition-all {
+          transition: all 0.2s ease-in-out;
+      }
+      
+      @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+          animation: fadeIn 0.5s ease-out forwards;
+      }
+
+      @keyframes modal-pop-in {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
+      }
+      .modal-content-wrapper {
+          animation: modal-pop-in 0.3s ease-out forwards;
+      }
+
+      .hidden {
+        display: none;
+      }
+      /* --- Light Theme Overrides --- */
+      body.light-theme {
+        background-color: #f9fafb; /* bg-gray-50 */
+        color: #111827; /* text-gray-900 */
+      }
+      .light-theme .bg-gray-900 { background-color: #f9fafb; }
+      .light-theme .bg-gray-800\/50 { background-color: rgba(255, 255, 255, 0.8); }
+      .light-theme .bg-gray-800 { background-color: #f3f4f6; }
+      .light-theme .bg-gray-900\/70 { background-color: rgba(243, 244, 246, 0.9); }
+      .light-theme .bg-gray-700 { background-color: #e5e7eb; }
+      .light-theme .hover\:bg-gray-600:hover { background-color: #d1d5db; }
+      .light-theme .text-white { color: #1f2937; }
+      .light-theme .text-gray-300 { color: #4b5563; }
+      .light-theme .text-gray-400 { color: #6b7280; }
+      .light-theme .text-gray-500 { color: #6b7280; }
+      .light-theme .border-gray-700 { border-color: #d1d5db; }
+      .light-theme .border-gray-600 { border-color: #9ca3af; }
+      .light-theme .text-sky-400 { color: #0369a1; }
+      .light-theme .hover\:text-sky-300:hover { color: #0ea5e9; }
+      .light-theme .text-sky-300 { color: #0284c7; }
+      .light-theme .shadow-sky-500\/10 { box-shadow: 0 4px 6px -1px rgb(56 189 248 / 0.1), 0 2px 4px -2px rgb(56 189 248 / 0.1); }
+      .light-theme .backdrop-blur-sm { backdrop-filter: blur(4px); }
+      .light-theme .divide-gray-700 > :not([hidden]) ~ :not([hidden]) { border-color: #d1d5db; }
+      .light-theme .hover\:bg-gray-700\/50:hover { background-color: rgba(243, 244, 246, 0.5); }
+      .light-theme .bg-sky-500\/20 { background-color: rgba(14, 165, 233, 0.1); }
+      .light-theme .border-sky-400 { border-color: #38bdf8; }
+      .light-theme .shadow-sky-500\/20 { box-shadow: 0 10px 15px -3px rgb(14 165 233 / 0.1), 0 4px 6px -4px rgb(14 165 233 / 0.1); }
+      .light-theme .border-sky-400\/50 { border-color: rgba(56, 189, 248, 0.5); }
+      .light-theme .text-yellow-300 { color: #ca8a04; }
+      .light-theme .placeholder-gray-400::placeholder { color: #9ca3af; }
+      .light-theme .focus\:ring-offset-gray-800:focus { --tw-ring-offset-color: #f9fafb; }
+      .light-theme .bg-sky-900\/50 { background-color: rgba(12, 74, 110, 0.1); }
+      .light-theme .border-gray-900 { border-color: #e5e7eb; }
+      .light-theme .border-sky-500 { border-color: #0ea5e9; }
+      .light-theme .bg-sky-600 { background-color: #0284c7; }
+      .light-theme .hover\:bg-sky-500:hover { background-color: #0ea5e9; }
+      .light-theme .bg-red-500\/50 { background-color: rgba(239, 68, 68, 0.2); }
+      .light-theme .hover\:bg-red-500\/50:hover { background-color: rgba(239, 68, 68, 0.4); }
+      .light-theme .border-red-500 { border-color: #ef4444; }
+      .light-theme .bg-green-500\/20 { background-color: rgba(34, 197, 94, 0.1); }
+      .light-theme .hover\:bg-green-500\/40:hover { background-color: rgba(34, 197, 94, 0.2); }
+      .light-theme .text-green-400 { color: #16a34a; }
+      .light-theme .bg-red-500\/20 { background-color: rgba(239, 68, 68, 0.1); }
+      .light-theme .hover\:bg-red-500\/40:hover { background-color: rgba(239, 68, 68, 0.2); }
+      .light-theme .text-red-400 { color: #dc2626; }
+      .light-theme .text-green-800 { color: #166534; }
+      .light-theme .bg-green-200 { background-color: #bbf7d0; }
+      .light-theme .text-yellow-800 { color: #854d0e; }
+      .light-theme .bg-yellow-200 { background-color: #fef08a; }
+      .light-theme .text-red-800 { color: #991b1b; }
+      .light-theme .bg-red-200 { background-color: #fecaca; }
+      .light-theme .text-gray-800 { color: #1f2937; }
+      .light-theme .bg-gray-300 { background-color: #d1d5db; }
+      .light-theme .peer:checked ~ .peer-checked\:bg-sky-600 { background-color: #0284c7; }
+      .light-theme .text-violet-500 { color: #7c3aed; }
+      .light-theme .bg-violet-500 { background-color: #8b5cf6; }
+      .light-theme .text-teal-500 { color: #0d9488; }
+      .light-theme .bg-teal-500 { background-color: #14b8a6; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div id="root">
+        <!-- SPLASH SCREEN -->
+        <div id="splash-screen">
+            <div class="flex flex-col items-center justify-center h-screen bg-gray-900">
+                <div class="relative">
+                    <svg class="w-40 h-40 text-sky-400 subtle-float" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="10" /><path d="M50 125 C 70 100, 80 75, 100 75 S 130 100, 150 125" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /><path d="M70 150 C 85 130, 115 130, 130 150" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /><path d="M90 170 C 95 160, 105 160, 110 170" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /></svg>
+                    <div class="absolute inset-0 rounded-full border-4 border-sky-500/50 animate-ping"></div>
+                </div>
+                <h1 class="mt-8 text-5xl font-bold text-white text-glow">AES Portal</h1>
+            </div>
+        </div>
+
+        <!-- AUTH SCREEN -->
+        <div id="auth-screen" class="hidden">
+            <div class="flex items-center justify-center min-h-screen bg-gray-900 p-4">
+                <div class="w-full max-w-md p-8 space-y-8 bg-gray-800/50 border border-gray-700 rounded-2xl shadow-2xl shadow-sky-500/10 backdrop-blur-sm animate-fade-in">
+                    <div class="text-center">
+                        <svg class="w-20 h-20 mx-auto text-sky-400" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="10" /><path d="M50 125 C 70 100, 80 75, 100 75 S 130 100, 150 125" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /><path d="M70 150 C 85 130, 115 130, 130 150" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /><path d="M90 170 C 95 160, 105 160, 110 170" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /></svg>
+                        <h2 class="mt-6 text-3xl font-bold text-white text-glow">AES Portal</h2>
+                        <p class="mt-2 text-gray-400">Sign in to access your account</p>
+                    </div>
+                    <form class="mt-8 space-y-6" id="login-form">
+                        <p id="login-error" class="text-red-400 text-center text-sm"></p>
+                        <div>
+                            <label for="email" class="sr-only">Username or Email</label>
+                            <input id="email" name="email" type="text" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Username or Email" />
+                        </div>
+                        <div>
+                            <label for="password" class="sr-only">Password</label>
+                            <input id="password" name="password" type="password" required class="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-sky-500" placeholder="Password" />
+                        </div>
+                        <div>
+                            <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-sky-600 hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 focus:ring-offset-gray-800 transition-colors active:scale-95">Sign in</button>
+                        </div>
+                    </form>
+                    <p class="text-center text-xs text-gray-500 mt-8">Made & Designed by <span class="text-glow font-semibold text-sky-400">Hussain</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CUSTOMER DASHBOARD -->
+        <div id="customer-dashboard" class="hidden"></div>
+
+        <!-- ADMIN DASHBOARD -->
+        <div id="admin-dashboard" class="hidden"></div>
+
+        <!-- MODAL CONTAINERS -->
+        <div id="main-modal-container"></div>
+        <div id="secondary-modal-container"></div>
+
+        <!-- ADMIN OVERLAY FOR MOBILE -->
+        <div id="admin-overlay" class="fixed inset-0 bg-black/50 z-30 hidden md:hidden"></div>
+    </div>
+
+    <script type="module">
+        // --- START OF JS LOGIC ---
+
+        // --- DATA PERSISTENCE & REAL-TIME SYNC NOTE ---
+        // This application uses the browser's localStorage to persist all data.
+        // This means data is saved on your computer for this specific browser.
+        // - Data will NOT be lost on page refresh or closing the browser.
+        // - Data WILL NOT be shared between different browsers (e.g., Chrome and Firefox).
+        // - An internet connection is not required as all data is stored locally.
+        // To ensure a "real-time" experience, the app syncs its state across
+        // different tabs of the same browser. If you make a change in one tab,
+        // all other open tabs for this portal will update automatically.
+
+        // --- GLOBAL STATE & CONSTANTS ---
+        const Role = { CUSTOMER: 'CUSTOMER', ADMIN: 'ADMIN' };
+        const PackageStatus = { PENDING: 'PENDING', ACTIVE: 'ACTIVE', EXPIRED: 'EXPIRED', REJECTED: 'REJECTED' };
+        const ComplaintStatus = { PENDING: 'PENDING', RESOLVED: 'RESOLVED' };
+
+        let appState = 'SPLASH_SCREEN';
+        let currentUser = null;
+        let currentTheme = 'dark';
+        let currentSubView = 'dashboard';
+
+        // --- DATA PERSISTENCE ---
+        const defaultData = {
+            users: [
+                { id: 'user1', name: 'John Doe', email: 'john@example.com', password: 'password123', role: Role.CUSTOMER, createdAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), address: '123 Tech Street, Silicon Valley', cnic: '12345-6789012-3', phoneNumber: '0300-1234567', debitInfo: 15, consumerId: 'JD-001', profilePic: null, allTimePayment: 250 },
+                { id: 'admin', name: 'Admin', email: 'admin', password: 'admin', role: Role.ADMIN, createdAt: new Date().toISOString(), profilePic: null },
+            ],
+            transactions: [
+                { id: 'tx1', userId: 'user1', packageId: 'pkg1', transactionId: 'TX_REJECTED_001', status: PackageStatus.REJECTED, purchaseDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString() },
+                { id: 'tx2', userId: 'user1', packageId: 'pkg2', transactionId: 'TX_EXPIRED_002', status: PackageStatus.EXPIRED, purchaseDate: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(), activationDate: new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString(), expiryDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString() },
+                { id: 'tx3', userId: 'user1', packageId: 'pkg3', transactionId: 'TX_ACTIVE_003', status: PackageStatus.ACTIVE, purchaseDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), activationDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), expiryDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString() },
+            ],
+            wifiPackages: [
+                { id: 'pkg1', name: 'Starter Pack', speed: '50 Mbps', price: 20, durationDays: 30 },
+                { id: 'pkg2', name: 'Pro Pack', speed: '200 Mbps', price: 45, durationDays: 30 },
+                { id: 'pkg3', name: 'Ultra Pack', speed: '1 Gbps', price: 80, durationDays: 30 },
+            ],
+            adminAccount: {
+                name: "AES Portal Admin",
+                accountNumber: "123-456-7890",
+                whatsappNumber: "",
+            },
+            notifications: [],
+            complaints: [
+                { id: 'comp1', userId: 'user1', subject: 'Slow Speeds', message: 'My internet is very slow in the evenings.', status: ComplaintStatus.PENDING, timestamp: new Date().toISOString() }
+            ],
+        };
+
+        let users, transactions, wifiPackages, adminAccount, notifications, complaints;
+
+        const saveState = () => {
+            try {
+                const stateToSave = { users, transactions, wifiPackages, adminAccount, notifications, complaints };
+                localStorage.setItem('aes_portal_data', JSON.stringify(stateToSave));
+                // Broadcast change to other tabs
+                const channel = new BroadcastChannel('aes_portal_sync');
+                channel.postMessage({ type: 'UPDATE_STATE' });
+                channel.close();
+            } catch (error) {
+                console.error("Failed to save state to localStorage", error);
+            }
+        };
+
+        const loadState = () => {
+            try {
+                const savedStateJSON = localStorage.getItem('aes_portal_data');
+                if (savedStateJSON) {
+                    const savedState = JSON.parse(savedStateJSON);
+                    users = savedState.users || defaultData.users;
+                    transactions = savedState.transactions || defaultData.transactions;
+                    wifiPackages = savedState.wifiPackages || defaultData.wifiPackages;
+                    adminAccount = savedState.adminAccount || defaultData.adminAccount;
+                    notifications = savedState.notifications || defaultData.notifications;
+                    complaints = savedState.complaints || defaultData.complaints;
+                } else {
+                    // Use structuredClone for a deep copy if available, otherwise a simple spread for this data structure is okay.
+                    ({ users, transactions, wifiPackages, adminAccount, notifications, complaints } = JSON.parse(JSON.stringify(defaultData)));
+                    saveState(); // Save the initial default state
+                }
+            } catch (error) {
+                console.error("Failed to load state from localStorage, using defaults.", error);
+                ({ users, transactions, wifiPackages, adminAccount, notifications, complaints } = JSON.parse(JSON.stringify(defaultData)));
+            }
+        };
+
+        loadState(); // Initial load of data
+
+        // --- UTILS ---
+        let audioContext = null;
+        const initAudioContext = () => {
+          if (audioContext) return;
+          try {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          } catch(e) { console.error("Web Audio API not supported."); }
+        };
+
+        const generateAvatarHTML = (user, sizeClasses = 'w-10 h-10', textClasses = 'text-xl') => {
+            if (user?.profilePic) {
+                return `<img src="${user.profilePic}" alt="Profile Picture" class="${sizeClasses} rounded-full object-cover border-2 border-gray-600">`;
+            }
+            const initial = user?.name ? user.name.charAt(0).toUpperCase() : '?';
+            let hash = 0;
+            if (user?.name) {
+                for (let i = 0; i < user.name.length; i++) {
+                    hash = user.name.charCodeAt(i) + ((hash << 5) - hash);
+                    hash |= 0; // Ensure 32bit integer
+                }
+            }
+            const colors = ['bg-sky-600', 'bg-emerald-600', 'bg-amber-600', 'bg-rose-600', 'bg-indigo-600', 'bg-teal-600', 'bg-fuchsia-600', 'bg-lime-600'];
+            const color = colors[Math.abs(hash) % colors.length];
+            return `<div class="${sizeClasses} ${color} rounded-full flex items-center justify-center text-white font-bold ${textClasses} border-2 border-gray-600"><span>${initial}</span></div>`;
+        };
+
+        const playSound = (type) => {
+          try {
+            if (!audioContext || audioContext.state === 'closed') return;
+            if (audioContext.state === 'suspended') { audioContext.resume(); }
+            const context = audioContext;
+            const oscillator = context.createOscillator();
+            const gainNode = context.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(context.destination);
+            gainNode.gain.setValueAtTime(0, context.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, context.currentTime + 0.01);
+            switch (type) {
+              case 'login': oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(440, context.currentTime); oscillator.frequency.linearRampToValueAtTime(880, context.currentTime + 0.2); break;
+              case 'click': oscillator.type = 'triangle'; oscillator.frequency.setValueAtTime(880, context.currentTime); break;
+              case 'notification': oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(600, context.currentTime); oscillator.frequency.linearRampToValueAtTime(1200, context.currentTime + 0.1); break;
+              case 'error': oscillator.type = 'square'; oscillator.frequency.setValueAtTime(300, context.currentTime); oscillator.frequency.linearRampToValueAtTime(150, context.currentTime + 0.15); break;
+              case 'delete': oscillator.type = 'sawtooth'; oscillator.frequency.setValueAtTime(400, context.currentTime); oscillator.frequency.linearRampToValueAtTime(200, context.currentTime + 0.2); break;
+            }
+            oscillator.start(context.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, context.currentTime + 0.2);
+            oscillator.stop(context.currentTime + 0.2);
+          } catch (error) { console.error("Could not play sound", error); }
+        };
+
+        const generateInvoice = (transaction, user, wifiPackage) => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.setFontSize(22); doc.text("AES Portal Invoice", 105, 20, { align: 'center' });
+            doc.setFontSize(12); doc.text(`Invoice ID: ${transaction.id}`, 14, 40); doc.text(`Purchase Date: ${new Date(transaction.purchaseDate).toLocaleDateString()}`, 14, 47);
+            doc.setFontSize(16); doc.text("Billed To:", 14, 60);
+            doc.setFontSize(12); doc.text(user.name, 14, 67); doc.text(user.email, 14, 74);
+            doc.line(14, 85, 196, 85);
+            doc.setFontSize(14); doc.text("Description", 14, 95); doc.text("Price", 180, 95);
+            doc.setFontSize(12); doc.text(`${wifiPackage.name} (${wifiPackage.speed})`, 14, 105); doc.text(`Rs ${wifiPackage.price.toFixed(2)}`, 180, 105);
+            if(transaction.activationDate) doc.text(`Activation: ${new Date(transaction.activationDate).toLocaleDateString()}`, 14, 112);
+            if(transaction.expiryDate) doc.text(`Expires: ${new Date(transaction.expiryDate).toLocaleDateString()}`, 14, 119);
+            doc.line(14, 130, 196, 130);
+            doc.setFontSize(16); doc.text("Total", 14, 140); doc.text(`Rs ${wifiPackage.price.toFixed(2)}`, 180, 140);
+            doc.setFontSize(10); doc.text("Thank you for your business!", 105, 160, { align: 'center'});
+            doc.save(`invoice-${transaction.id}.pdf`);
+        };
+
+        const getStatusPillHTML = (status) => {
+            switch (status) {
+                case PackageStatus.ACTIVE: return `<span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-full inline-flex items-center gap-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Active</span>`;
+                case PackageStatus.PENDING: return `<span class="px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-200 rounded-full inline-flex items-center gap-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Pending</span>`;
+                case ComplaintStatus.RESOLVED: return `<span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-full">Resolved</span>`;
+                case PackageStatus.REJECTED: return `<span class="px-2 py-1 text-xs font-semibold text-red-800 bg-red-200 rounded-full inline-flex items-center gap-1"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> Rejected</span>`;
+                case PackageStatus.EXPIRED: return `<span class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-300 rounded-full">Expired</span>`;
+                default: return `<span class="px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-200 rounded-full">Pending</span>`;
+            }
+        };
+        
+        const getNotificationListHTML = () => {
+            if (!currentUser) return { listHTML: '', hasUnread: false };
+            const userNotifications = notifications.filter(n => n.userId === 'all' || n.userId === currentUser.id).sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            const hasUnread = userNotifications.some(n => !n.read);
+            const listHTML = userNotifications.length > 0 ? userNotifications.map(n => `
+                <div class="p-3 border-b border-gray-700/50 ${!n.read ? 'bg-sky-900/50' : ''}">
+                    <p class="text-sm text-gray-300">${n.message}</p>
+                    <p class="text-xs text-gray-500 mt-1">${new Date(n.timestamp).toLocaleString()}</p>
+                </div>`).join('') : '<p class="p-4 text-sm text-gray-400">No new notifications.</p>';
+            
+            return { listHTML, hasUnread };
+        };
+
+        // --- THEME ---
+        function applyTheme(theme) {
+            localStorage.setItem('aes_portal_theme', theme);
+            currentTheme = theme;
+            const themeIcon = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">${
+                theme === 'dark'
+                ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />`
+                : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />`
+            }</svg>`;
+            document.querySelectorAll('.theme-switcher-btn').forEach(btn => {
+                btn.innerHTML = themeIcon;
+                btn.setAttribute('aria-label', `Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`);
+            });
+            document.body.classList.toggle('light-theme', theme === 'light');
+        }
+        
+        function toggleTheme() {
+            playSound('click');
+            applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        }
+
+        // --- NAVIGATION & RENDERING ---
+        const views = ['splash-screen', 'auth-screen', 'customer-dashboard', 'admin-dashboard'];
+        function navigateTo(targetState) {
+            appState = targetState;
+            if (targetState === 'CUSTOMER_DASHBOARD' || targetState === 'ADMIN_DASHBOARD') {
+                currentSubView = 'dashboard';
+            }
+            views.forEach(id => {
+                document.getElementById(id).classList.toggle('hidden', id !== `${appState.toLowerCase().replace(/_/g, '-')}`);
+            });
+            renderCurrentView();
+        }
+        
+        function renderCurrentView() {
+            if (appState === 'CUSTOMER_DASHBOARD' && currentUser) {
+                const freshUser = users.find(u => u.id === currentUser.id);
+                if (!freshUser) { handleLogout(); return; }
+                currentUser = freshUser;
+                renderCustomerDashboard(currentSubView);
+            } else if (appState === 'ADMIN_DASHBOARD' && currentUser) {
+                const freshUser = users.find(u => u.id === currentUser.id);
+                if (!freshUser) { handleLogout(); return; }
+                currentUser = freshUser;
+                renderAdminDashboard(currentSubView);
+            }
+            applyTheme(currentTheme);
+        }
+        
+        // --- HANDLERS ---
+        function handleLogin(e) {
+            if (e) e.preventDefault();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('login-error');
+            
+            const user = users.find(u => (u.email === email || u.name === email) && u.password === password);
+            if (user) {
+                playSound('login');
+                currentUser = user;
+                navigateTo(user.role === Role.ADMIN ? 'ADMIN_DASHBOARD' : 'CUSTOMER_DASHBOARD');
+                errorEl.textContent = '';
+            } else {
+                playSound('error');
+                errorEl.textContent = 'Invalid credentials. Please try again.';
+            }
+        }
+        
+        function handleLogout() {
+            playSound('click');
+            currentUser = null;
+            navigateTo('AUTH_SCREEN');
+        }
+
+        function handlePurchase(packageId, transactionId) {
+            if(!currentUser) return;
+            const newTransaction = {
+                id: `tx_${Date.now()}`, userId: currentUser.id, packageId, transactionId, status: PackageStatus.PENDING,
+                purchaseDate: new Date().toISOString(), type: 'PACKAGE_PURCHASE'
+            };
+            transactions.push(newTransaction);
+            saveState();
+            playSound('notification');
+            renderCustomerDashboard();
+        }
+
+        function handleDebitPayment(transactionId, amount) {
+            if(!currentUser) return;
+            const newTransaction = {
+                id: `tx_${Date.now()}`,
+                userId: currentUser.id,
+                packageId: null, // No package associated
+                transactionId,
+                status: PackageStatus.PENDING,
+                purchaseDate: new Date().toISOString(),
+                type: 'DEBIT_PAYMENT', // New field
+                amount: amount, // New field
+            };
+            transactions.push(newTransaction);
+            saveState();
+            playSound('notification');
+            renderCustomerDashboard('profile'); // Go back to profile view
+        }
+
+        function handleApprove(transactionId) {
+            playSound('notification');
+        
+            const transactionIndex = transactions.findIndex(t => t.id === transactionId && t.status === PackageStatus.PENDING);
+            if (transactionIndex === -1) {
+                playSound('error');
+                console.error("Could not find the pending transaction to approve.");
+                renderAdminDashboard('transactions');
+                return;
+            }
+        
+            const originalTx = transactions[transactionIndex];
+            const userIndex = users.findIndex(u => u.id === originalTx.userId);
+            if (userIndex === -1) {
+                playSound('error');
+                console.error("Could not find the user for the transaction.");
+                renderAdminDashboard('transactions');
+                return;
+            }
+        
+            const originalUser = users[userIndex];
+            let updatedTx;
+            let updatedUser;
+        
+            if (originalTx.type === 'DEBIT_PAYMENT') {
+                updatedTx = { 
+                    ...originalTx, 
+                    status: PackageStatus.ACTIVE, 
+                    activationDate: new Date().toISOString() 
+                };
+                updatedUser = {
+                    ...originalUser,
+                    debitInfo: Math.max(0, (originalUser.debitInfo || 0) - originalTx.amount),
+                    allTimePayment: (originalUser.allTimePayment || 0) + originalTx.amount
+                };
+            } else { // It's a package purchase
+                const now = new Date();
+                const aPackage = wifiPackages.find(p => p.id === originalTx.packageId);
+                const expiry = new Date(now);
+                expiry.setDate(expiry.getDate() + (aPackage?.durationDays || 30));
+                
+                updatedTx = {
+                    ...originalTx,
+                    status: PackageStatus.ACTIVE,
+                    activationDate: now.toISOString(),
+                    expiryDate: expiry.toISOString()
+                };
+                updatedUser = {
+                    ...originalUser,
+                    allTimePayment: (originalUser.allTimePayment || 0) + (aPackage?.price || 0)
+                };
+            }
+        
+            // Update state immutably
+            transactions = transactions.map((tx, index) => index === transactionIndex ? updatedTx : tx);
+            users = users.map((u, index) => index === userIndex ? updatedUser : u);
+            
+            saveState();
+            
+            // For clarity in the rest of the function
+            const approvedTx = updatedTx;
+            const targetUser = updatedUser;
+        
+            // 1. Send in-app notification
+            const isDebitPayment = approvedTx.type === 'DEBIT_PAYMENT';
+            const portalMessage = isDebitPayment
+                ? `Your debit payment of Rs ${approvedTx.amount.toFixed(2)} has been approved.`
+                : `Your purchase of "${wifiPackages.find(p => p.id === approvedTx.packageId)?.name || 'package'}" has been approved and is now active!`;
+            handleSendNotification(approvedTx.userId, portalMessage);
+        
+            // 2. Prepare WhatsApp notification
+            let whatsappActionHTML = '';
+            const canSendWhatsApp = targetUser.phoneNumber && adminAccount.whatsappNumber;
+        
+            if (canSendWhatsApp) {
+                const cleanPhoneNumber = targetUser.phoneNumber.replace(/[^0-9]/g, '');
+                const packageDescription = isDebitPayment
+                    ? `debit payment of Rs ${approvedTx.amount.toFixed(2)}`
+                    : `purchase of "${wifiPackages.find(p => p.id === approvedTx.packageId)?.name || 'package'}"`;
+        
+                const whatsappMessage = `Dear ${targetUser.name},\n\nYour ${packageDescription} with Transaction ID: ${approvedTx.transactionId} has been successfully approved by AES Portal and is now active.\n\nThank you for choosing us!`;
+                const whatsappUrl = `https://wa.me/${cleanPhoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+                
+                whatsappActionHTML = `<a href="${whatsappUrl}" target="_blank" class="whatsapp-notify-link bg-teal-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-500 inline-flex items-center gap-2 active:scale-95">
+                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.894 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 4.315 1.731 6.086l.001.004 4.971 4.971z"/></svg>
+                                    Notify via WhatsApp
+                                </a>`;
+            } else {
+                let reason = '';
+                if (!targetUser.phoneNumber) reason = `Customer '${targetUser.name}' has no phone number set.`;
+                else if (!adminAccount.whatsappNumber) reason = 'Admin WhatsApp number is not set in Settings.';
+                
+                whatsappActionHTML = `<div class="text-sm text-yellow-300 bg-yellow-500/10 p-2 rounded-md text-left w-full">
+                                        <p><strong>Could not prepare WhatsApp notification.</strong></p>
+                                        <p>${reason}</p>
+                                    </div>`;
+            }
+            
+            // 3. Show confirmation modal
+            const modalContent = `<p class="text-lg text-gray-300 mb-4">Transaction for <strong class="text-white">${targetUser.name}</strong> approved successfully.</p>
+                                <p class="text-sm text-gray-400">An in-app notification has been sent to the customer.</p>`;
+        
+            const actionsHTML = `
+                ${whatsappActionHTML}
+                <button id="close-approval-modal-btn" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-500 active:scale-95">Close</button>
+            `;
+            
+            createModal('approval-success-modal', 'Approval Successful', modalContent, actionsHTML, 'max-w-xl');
+        
+            // 4. Add event listeners
+            document.getElementById('close-approval-modal-btn')?.addEventListener('click', () => {
+                closeModal('approval-success-modal');
+                renderAdminDashboard('transactions');
+            });
+        
+            document.querySelector('.whatsapp-notify-link')?.addEventListener('click', () => {
+                setTimeout(() => {
+                    closeModal('approval-success-modal');
+                    renderAdminDashboard('transactions');
+                }, 500);
+            });
+        }
+
+        function handleReject(transactionId) {
+            playSound('error');
+            let rejectedTx;
+            transactions = transactions.map(t => {
+                if (t.id === transactionId) {
+                    rejectedTx = {...t, status: PackageStatus.REJECTED};
+                    return rejectedTx;
+                }
+                return t;
+            });
+            saveState();
+            if (rejectedTx) {
+                const message = rejectedTx.type === 'DEBIT_PAYMENT'
+                    ? `Your debit payment with Transaction ID ${rejectedTx.transactionId} has been rejected.`
+                    : `Your purchase with Transaction ID ${rejectedTx.transactionId} has been rejected.`;
+                handleSendNotification(rejectedTx.userId, message);
+            }
+            renderAdminDashboard('transactions');
+        }
+        
+        function handleSendNotification(userId, message) {
+            playSound('notification');
+            notifications.push({
+                id: `notif_${Date.now()}`, userId, message, timestamp: new Date().toISOString(), read: false,
+            });
+            saveState();
+        }
+        
+        function handleMarkAllRead() {
+            if (!currentUser) return;
+            playSound('click');
+            notifications.forEach(n => {
+                if (n.userId === currentUser.id || n.userId === 'all') n.read = true;
+            });
+            saveState();
+            renderCurrentView();
+        }
+
+        function handleComplaintSubmit(userId, subject, message) {
+            complaints.push({
+                id: `comp_${Date.now()}`, userId, subject, message, status: ComplaintStatus.PENDING,
+                timestamp: new Date().toISOString(),
+            });
+            saveState();
+            playSound('notification');
+            renderCustomerDashboard('support');
+        }
+        
+        function handleResolveComplaint(complaintId) {
+            complaints = complaints.map(c => c.id === complaintId ? {...c, status: ComplaintStatus.RESOLVED} : c);
+            saveState();
+            playSound('notification');
+            renderAdminDashboard('complaints');
+        }
+
+        function handleUpdateCredentials(newUsername, newPass) {
+            if (!newUsername.trim() || !newPass.trim()) {
+                playSound('error');
+                alert('Admin username and password cannot be empty.');
+                return;
+            }
+            users = users.map(u => {
+                if (u.role === Role.ADMIN) {
+                    const updatedAdmin = {...u, email: newUsername, password: newPass};
+                    if(currentUser?.id === u.id) currentUser = updatedAdmin;
+                    return updatedAdmin;
+                }
+                return u;
+            });
+            saveState();
+            playSound('notification');
+            renderAdminDashboard('settings');
+        }
+
+        function handleUpdateAdminAccount(name, accountNumber) {
+            if (!name.trim() || !accountNumber.trim()) {
+                playSound('error');
+                alert('Account name and number cannot be empty.');
+                return;
+            }
+            adminAccount.name = name;
+            adminAccount.accountNumber = accountNumber;
+            saveState();
+            playSound('notification');
+            renderAdminDashboard('settings');
+        }
+
+        function handleUpdateWhatsAppNumber(number) {
+            if (!number.trim()) {
+                playSound('error');
+                alert('WhatsApp number cannot be empty.');
+                return;
+            }
+            adminAccount.whatsappNumber = number.trim();
+            saveState();
+            playSound('notification');
+            renderAdminDashboard('settings');
+        }
+
+        function handleUpdatePackage(packageData) {
+            if (!packageData.name.trim() || !packageData.speed.trim() || !packageData.price || packageData.price <= 0) {
+                playSound('error');
+                alert('Please provide a valid name, speed, and a price greater than zero.');
+                return;
+            }
+            if(packageData.id) { // Editing existing package
+                wifiPackages = wifiPackages.map(p => p.id === packageData.id ? { ...p, ...packageData } : p);
+            } else { // Adding new package
+                wifiPackages.push({ ...packageData, id: `pkg_${Date.now()}`, durationDays: 30 });
+            }
+            saveState();
+            playSound('notification');
+            renderAdminDashboard('packages');
+        }
+
+        function handleAddCustomer(customerData, initialPackageId, initialPayment, initialDebit) {
+            if (users.find(u => u.email.toLowerCase() === customerData.email.toLowerCase().trim())) {
+                playSound('error');
+                alert('An account with this email already exists.');
+                return false;
+            }
+            const newCustomer = {
+                ...customerData,
+                id: `user_${Date.now()}`,
+                role: Role.CUSTOMER,
+                createdAt: new Date().toISOString(),
+                allTimePayment: initialPayment || 0,
+                debitInfo: initialDebit || 0,
+            };
+            users.push(newCustomer);
+        
+            if (initialPackageId) {
+                const aPackage = wifiPackages.find(p => p.id === initialPackageId);
+                if (aPackage) {
+                    const now = new Date();
+                    const expiry = new Date(now);
+                    expiry.setDate(expiry.getDate() + (aPackage.durationDays || 30));
+        
+                    const newTransaction = {
+                        id: `tx_${Date.now()}`,
+                        userId: newCustomer.id,
+                        packageId: initialPackageId,
+                        transactionId: `ADMIN-INIT-${Date.now()}`,
+                        status: PackageStatus.ACTIVE,
+                        purchaseDate: now.toISOString(),
+                        activationDate: now.toISOString(),
+                        expiryDate: expiry.toISOString(),
+                        type: 'PACKAGE_PURCHASE'
+                    };
+                    transactions.push(newTransaction);
+                }
+            }
+            
+            saveState();
+            playSound('notification');
+            handleSendNotification(newCustomer.id, `Welcome to AES Portal! Your account has been created.`);
+            renderAdminDashboard('customers');
+            return true;
+        }
+
+        function handleDeleteCustomer(userId) {
+            users = users.filter(u => u.id !== userId);
+            // Optional: also delete related transactions and complaints
+            // transactions = transactions.filter(t => t.userId !== userId);
+            // complaints = complaints.filter(c => c.userId !== userId);
+            saveState();
+            playSound('delete');
+            renderAdminDashboard('customers');
+        }
+
+        // --- CUSTOMER DASHBOARD RENDERING ---
+        function renderCustomerDashboard(view = 'dashboard') {
+            currentSubView = view;
+            const dashboardEl = document.getElementById('customer-dashboard');
+            const freshCurrentUser = users.find(u => u.id === currentUser.id) || currentUser;
+            const userTransactions = transactions.filter(t => t.userId === freshCurrentUser.id).sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate));
+            const activeTransaction = userTransactions.find(t => t.status === PackageStatus.ACTIVE && t.type !== 'DEBIT_PAYMENT');
+            const pendingTransaction = userTransactions.find(t => t.status === PackageStatus.PENDING);
+            const activePackage = activeTransaction ? wifiPackages.find(p => p.id === activeTransaction.packageId) : null;
+            
+            const { listHTML: notificationListHTML, hasUnread } = getNotificationListHTML();
+
+            let activePackageHTML = '';
+            if(activePackage && activeTransaction?.expiryDate) {
+                const expiryDate = new Date(activeTransaction.expiryDate);
+                const daysLeft = Math.max(0, Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24)));
+                activePackageHTML = `
+                <div class="mb-10">
+                    <div class="bg-sky-500/20 border border-sky-400 p-6 rounded-xl shadow-lg shadow-sky-500/20 backdrop-blur-sm">
+                      <h2 class="text-2xl font-bold text-sky-300 mb-2">Active Package</h2>
+                      <div class="flex items-center justify-between">
+                        <div>
+                          <p class="text-xl font-semibold text-white">${activePackage.name}</p>
+                          <p class="text-gray-300">${activePackage.speed}</p>
+                        </div>
+                        <svg class="w-12 h-12 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.828a4 4 0 010-5.656m5.656 0a4 4 0 010 5.656m-2.828 2.828a1 1 0 11-1.414-1.414 1 1 0 011.414 1.414z" /></svg>
+                      </div>
+                      <div class="mt-4 pt-4 border-t border-sky-400/50 flex items-center gap-2 ${daysLeft <= 7 ? 'text-yellow-300' : 'text-gray-200'}">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <p class="font-medium">Expires on: ${expiryDate.toLocaleDateString()} (${daysLeft} days left)</p>
+                      </div>
+                    </div>
+                </div>`;
+            }
+            
+            const packagesHTML = wifiPackages.map(pkg => `
+              <div class="bg-gray-800/50 border border-gray-700 p-6 rounded-lg backdrop-blur-sm transform hover:scale-105 transition-transform duration-300 hover:border-sky-500 hover:shadow-2xl hover:shadow-sky-500/20">
+                <h3 class="text-xl font-bold text-sky-400">${pkg.name}</h3>
+                <p class="text-gray-400 mt-1">${pkg.speed}</p>
+                <p class="text-4xl font-extrabold text-white my-4">Rs ${pkg.price}<span class="text-lg font-normal text-gray-400">/month</span></p>
+                <button data-package-id="${pkg.id}" ${!!pendingTransaction ? 'disabled' : ''} class="buy-btn w-full bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-500 transition-all disabled:bg-gray-600 disabled:cursor-not-allowed disabled:text-gray-400 active:scale-95">
+                  ${!!pendingTransaction ? 'Pending Approval' : 'Buy Now'}
+                </button>
+              </div>`).join('');
+            
+            const historyCardsHTML = `<div class="md:hidden space-y-4">${userTransactions.map(t => {
+                const aPackage = wifiPackages.find(p => p.id === t.packageId);
+                const description = t.type === 'DEBIT_PAYMENT' ? `Debit Payment (Rs ${t.amount.toFixed(2)})` : aPackage?.name || 'N/A';
+                return `<div class="bg-gray-800/50 border border-gray-700 rounded-lg p-4">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="font-bold text-white">${description}</p>
+                            <p class="text-sm text-gray-400">${new Date(t.purchaseDate).toLocaleDateString()}</p>
+                        </div>
+                        ${getStatusPillHTML(t.status)}
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-600 text-sm">
+                        <p class="text-gray-400 font-mono break-all">ID: ${t.transactionId}</p>
+                        ${t.status === PackageStatus.ACTIVE && t.type !== 'DEBIT_PAYMENT' ? `<button data-tx-id="${t.id}" class="download-invoice-btn text-sky-400 hover:text-sky-300 mt-2 inline-flex items-center gap-2 active:scale-95" title="Download Invoice"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg> Invoice</button>` : ''}
+                    </div>
+                </div>`;
+            }).join('')}</div>`;
+
+            const historyTableHTML = `
+                <div class="hidden md:block bg-gray-800/50 border border-gray-700 rounded-lg overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-gray-900/70"><tr><th class="p-4">Description</th><th class="p-4">Date</th><th class="p-4">Status</th><th class="p-4">Transaction ID</th><th class="p-4">Invoice</th></tr></thead>
+                        <tbody class="divide-y divide-gray-700">${userTransactions.map(t => {
+                            const aPackage = wifiPackages.find(p => p.id === t.packageId);
+                            const description = t.type === 'DEBIT_PAYMENT' ? `Debit Payment (Rs ${t.amount.toFixed(2)})` : aPackage?.name || 'N/A';
+                            return `<tr class="hover:bg-gray-700/50 transition-colors">
+                                      <td class="p-4 font-medium">${description}</td>
+                                      <td class="p-4 text-gray-300">${new Date(t.purchaseDate).toLocaleDateString()}</td>
+                                      <td class="p-4">${getStatusPillHTML(t.status)}</td>
+                                      <td class="p-4 text-gray-400 font-mono text-sm">${t.transactionId}</td>
+                                      <td class="p-4">${t.status === PackageStatus.ACTIVE && t.type !== 'DEBIT_PAYMENT' ? `<button data-tx-id="${t.id}" class="download-invoice-btn text-sky-400 hover:text-sky-300 active:scale-95" title="Download Invoice"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg></button>` : ''}</td>
+                                    </tr>`;
+                        }).join('')}</tbody>
+                    </table>
+                </div>`;
+
+            const historyHTML = `<h2 class="text-2xl font-bold text-sky-300 mb-6">Your Purchase History</h2>` + (userTransactions.length > 0 ? (historyCardsHTML + historyTableHTML) : `<div class="text-center p-8 text-gray-400">No purchase history found.</div>`);
+
+            const supportHTML = `
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                    <h2 class="text-2xl font-bold text-sky-300 mb-6">Submit a Complaint</h2>
+                    <form id="complaint-form">
+                        <div class="mb-4"><label for="subject" class="block text-gray-300 font-medium mb-2">Subject</label><input type="text" id="subject" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required/></div>
+                        <div class="mb-6"><label for="message" class="block text-gray-300 font-medium mb-2">Message</label><textarea id="message" rows="5" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" required></textarea></div>
+                        <button type="submit" class="w-full bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-500 active:scale-95">Submit</button>
+                    </form>
+                </div>
+                <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                     <h3 class="text-xl font-bold text-sky-300 mb-4">Your Complaint History</h3>
+                      <div class="space-y-4 max-h-96 overflow-y-auto pr-2">${complaints.filter(c => c.userId === currentUser.id).length > 0 ? complaints.filter(c => c.userId === currentUser.id).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).map(c => `
+                            <div class="border-b border-gray-700 pb-2">
+                                <div class="flex justify-between items-center"><p class="font-medium">${c.subject}</p>${getStatusPillHTML(c.status)}</div>
+                                <p class="text-sm text-gray-400 mt-1">${new Date(c.timestamp).toLocaleString()}</p>
+                            </div>`).join('') : `<p class="text-center p-8 text-gray-400">No complaints filed.</p>`}
+                    </div>
+                </div>
+              </div>`;
+              
+            // Profile Analytics Calculation
+            const totalPackages = userTransactions.filter(t => t.status !== PackageStatus.REJECTED && t.type === 'PACKAGE_PURCHASE').length;
+            const totalComplaints = complaints.filter(c => c.userId === freshCurrentUser.id).length;
+            let packageMeterHTML = '';
+
+            if (activeTransaction && activePackage && activeTransaction.activationDate && activeTransaction.expiryDate) {
+                const startDate = new Date(activeTransaction.activationDate);
+                const expiryDate = new Date(activeTransaction.expiryDate);
+                const totalDuration = (expiryDate - startDate) / (1000 * 60 * 60 * 24);
+                const daysLeft = Math.max(0, Math.ceil((expiryDate - new Date()) / (1000 * 60 * 60 * 24)));
+                const percentageLeft = totalDuration > 0 ? (daysLeft / totalDuration) * 100 : 0;
+                const circumference = 2 * Math.PI * 50; // radius of 50
+                const strokeOffset = circumference - (percentageLeft / 100) * circumference;
+
+                packageMeterHTML = `
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 flex flex-col items-center justify-center text-center">
+                        <h3 class="text-xl font-bold text-sky-300 mb-4">Active Package Status</h3>
+                        <div class="relative w-40 h-40">
+                            <svg class="w-full h-full" viewBox="0 0 120 120">
+                                <circle class="text-gray-700" stroke-width="10" stroke="currentColor" fill="transparent" r="50" cx="60" cy="60"/>
+                                <circle class="text-sky-400 transition-all duration-1000" stroke-width="10" stroke-dasharray="${circumference}" stroke-dashoffset="${strokeOffset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="50" cx="60" cy="60" transform="rotate(-90 60 60)"/>
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span class="text-3xl font-bold text-white">${daysLeft}</span>
+                                <span class="text-sm text-gray-400">Days Left</span>
+                            </div>
+                        </div>
+                        <p class="text-gray-300 mt-4">Your <strong class="text-white">${activePackage.name}</strong> (${activePackage.speed}) expires on ${expiryDate.toLocaleDateString()}.</p>
+                    </div>
+                </div>`;
+            }
+
+            const profileHTML = `
+                <div class="space-y-8">
+                    <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 sm:p-8 max-w-4xl mx-auto">
+                        <h2 class="text-2xl font-bold text-sky-300 mb-6">My Profile</h2>
+                        <div class="flex flex-col md:flex-row items-center gap-8">
+                            <div class="relative">
+                                ${generateAvatarHTML(freshCurrentUser, 'w-32 h-32', 'text-5xl')}
+                                <span class="absolute bottom-2 right-2 h-4 w-4 bg-green-400 rounded-full border-2 border-gray-800" title="Online"></span>
+                            </div>
+                            <div class="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-lg">
+                                <div><strong class="text-gray-400">Name:</strong> <span class="text-white">${freshCurrentUser.name}</span></div>
+                                <div><strong class="text-gray-400">Email:</strong> <span class="text-white">${freshCurrentUser.email}</span></div>
+                                <div class="sm:col-span-2"><strong class="text-gray-400">Address:</strong> <span class="text-white">${freshCurrentUser.address || 'N/A'}</span></div>
+                                <div><strong class="text-gray-400">CNIC:</strong> <span class="text-white font-mono">${freshCurrentUser.cnic || 'N/A'}</span></div>
+                                <div><strong class="text-gray-400">Phone:</strong> <span class="text-white">${freshCurrentUser.phoneNumber || 'N/A'}</span></div>
+                                <div class="flex items-center gap-2">
+                                    <strong class="text-gray-400">Pending Debit:</strong>
+                                    <span class="text-white font-mono">Rs ${Number(freshCurrentUser.debitInfo || 0).toFixed(2)}</span>
+                                    ${Number(freshCurrentUser.debitInfo || 0) > 0 ? `<button id="pay-debit-btn" class="bg-yellow-500/20 hover:bg-yellow-500/40 text-yellow-300 text-xs font-bold py-1 px-2 rounded-md transition-all active:scale-95">Pay Now</button>` : ''}
+                                </div>
+                                <div><strong class="text-gray-400">All Time Payment:</strong> <span class="text-white font-mono">Rs ${Number(freshCurrentUser.allTimePayment || 0).toFixed(2)}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="max-w-4xl mx-auto">
+                        <h3 class="text-xl font-bold text-sky-300 mb-4">Activity at a Glance</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
+                                <p class="text-4xl font-bold text-sky-400">${totalPackages}</p>
+                                <p class="text-gray-400 mt-2">Packages Purchased</p>
+                            </div>
+                            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
+                                <p class="text-4xl font-bold text-sky-400">${totalComplaints}</p>
+                                <p class="text-gray-400 mt-2">Complaints Filed</p>
+                            </div>
+                            <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 text-center">
+                                <p class="text-4xl font-bold text-sky-400">Rs ${Number(freshCurrentUser.allTimePayment || 0).toFixed(0)}</p>
+                                <p class="text-gray-400 mt-2">All Time Spending</p>
+                            </div>
+                        </div>
+                    </div>
+                    ${packageMeterHTML}
+                </div>`;
+            
+            const mainContentMap = {
+                history: historyHTML,
+                support: supportHTML,
+                profile: profileHTML,
+                default: `${activePackageHTML} <h2 class="text-2xl font-bold text-sky-300 mb-6">Available Packages</h2> <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">${packagesHTML}</div>`
+            };
+            const mainContentHTML = mainContentMap[view] || mainContentMap.default;
+            
+            dashboardEl.innerHTML = `
+            <div class="min-h-screen bg-gray-900 text-white flex flex-col">
+              <div class="flex-grow">
+                <header class="flex flex-wrap justify-between items-center mb-8 gap-4 p-4 sm:p-6 lg:p-8">
+                  <div>
+                    <h1 class="text-3xl font-bold text-glow">Welcome, <span class="text-sky-400">${freshCurrentUser.name}</span></h1>
+                    ${freshCurrentUser.consumerId ? `<p class="text-sm text-gray-400 font-mono mt-1">Consumer ID: ${freshCurrentUser.consumerId}</p>` : ''}
+                  </div>
+                  <div class="flex items-center gap-4">
+                      <button class="theme-switcher-btn text-gray-300 hover:text-white transition-colors active:scale-95"></button>
+                      <div class="relative"><button id="notification-bell" class="relative text-gray-300 hover:text-white transition-colors active:scale-95"><svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>${hasUnread ? '<span class="absolute top-0 right-0 h-3 w-3 rounded-full bg-sky-500 border-2 border-gray-900"></span>' : ''}</button><div id="notification-dropdown" class="hidden"></div></div>
+                      <button id="customer-logout-btn" class="bg-gray-700/50 hover:bg-red-500/50 border border-gray-600 hover:border-red-500 text-white font-bold py-2 px-4 rounded-lg flex items-center gap-2 transition-all active:scale-95"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg><span class="hidden sm:inline">Logout</span></button>
+                  </div>
+                </header>
+                <nav class="border-b border-gray-700 mb-6 px-4 sm:px-6 lg:px-8"><div class="flex space-x-1 sm:space-x-4 overflow-x-auto pb-2">${['Dashboard', 'History', 'Support', 'Profile'].map(item => `<button data-view="${item.toLowerCase().replace(' ', '-')}" class="customer-nav-btn py-2 px-3 sm:px-4 font-medium transition-colors whitespace-nowrap active:scale-95 ${view === item.toLowerCase() ? 'text-sky-400 border-b-2 border-sky-400' : 'text-gray-400 hover:text-white'}">${item}</button>`).join('')}</div></nav>
+                <main class="p-4 sm:p-6 lg:p-8 animate-fade-in">${mainContentHTML}</main>
+              </div>
+              <footer class="py-4 px-8 text-center text-xs text-gray-500 border-t border-gray-700">
+                Made & Designed by <span class="text-glow font-semibold text-sky-400">Hussain</span>
+              </footer>
+            </div>`;
+        }
+        
+        // --- ADMIN DASHBOARD RENDERING ---
+        function renderAdminDashboard(view = 'dashboard') {
+            currentSubView = view;
+            const dashboardEl = document.getElementById('admin-dashboard');
+            
+            const totalCustomers = users.filter(u => u.role === Role.CUSTOMER).length;
+            const totalRevenue = transactions.filter(t => (t.status === PackageStatus.ACTIVE || t.status === PackageStatus.EXPIRED) && t.type !== 'DEBIT_PAYMENT').reduce((sum, t) => sum + (wifiPackages.find(p => p.id === t.packageId)?.price || 0), 0);
+            const pendingComplaintsCount = complaints.filter(c => c.status === ComplaintStatus.PENDING).length;
+
+            const navItems = [
+                { id: 'dashboard', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6M4 6h16M4 10h16M4 14h16M4 18h16" />', label: 'Dashboard' },
+                { id: 'customers', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.184-1.268-.5-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.184-1.268.5-1.857m0 0a5.002 5.002 0 019 0m-9 0a5.002 5.002 0 00-9 0" />', label: 'Customers' },
+                { id: 'add-customer', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />', label: 'Add Customer' },
+                { id: 'transactions', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />', label: 'Transactions' },
+                { id: 'complaints', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />', label: 'Complaints', badge: pendingComplaintsCount },
+                { id: 'broadcast', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />', label: 'Broadcast' },
+                { id: 'packages', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.293 2.293a1 1 0 010 1.414L10 12l5.707 5.293a1 1 0 010 1.414L13 21m-2-2l-2.293-2.293a1 1 0 010-1.414L13 12 7.293 6.707a1 1 0 010-1.414L10 3h2z" />', label: 'Packages' },
+                { id: 'settings', icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />', label: 'Settings' },
+            ];
+            
+            // --- MAIN CONTENT VIEWS ---
+            let mainContentHTML = '';
+            switch(view) {
+                case 'dashboard':
+                    const activeSubscriptions = transactions.filter(t => t.status === PackageStatus.ACTIVE && t.type !== 'DEBIT_PAYMENT').length;
+                    const pendingApprovals = transactions.filter(t => t.status === PackageStatus.PENDING).length;
+
+                    // Customer Growth Chart Data
+                    const customerGrowthData = Array(6).fill(0).map((_, i) => {
+                        const d = new Date();
+                        d.setMonth(d.getMonth() - i);
+                        return { month: d.toLocaleString('default', { month: 'short' }), year: d.getFullYear(), count: 0 };
+                    }).reverse();
+
+                    users.filter(u => u.role === Role.CUSTOMER && u.createdAt).forEach(u => {
+                        const userDate = new Date(u.createdAt);
+                        const month = userDate.toLocaleString('default', { month: 'short' });
+                        const year = userDate.getFullYear();
+                        const entry = customerGrowthData.find(d => d.month === month && d.year === year);
+                        if (entry) entry.count++;
+                    });
+                    const maxGrowth = Math.max(...customerGrowthData.map(d => d.count), 1);
+                    const customerGrowthChartHTML = `
+                        <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700 col-span-1 lg:col-span-2">
+                            <h3 class="text-lg font-bold text-sky-300 mb-4">New Customers (Last 6 Months)</h3>
+                            <div class="flex justify-around items-end h-48 gap-4 pt-4">
+                                ${customerGrowthData.map(d => `
+                                    <div class="flex flex-col items-center flex-1 h-full justify-end">
+                                        <div class="text-sm font-bold text-white mb-1 transition-all" style="opacity: ${d.count > 0 ? 1 : 0};">${d.count}</div>
+                                        <div class="w-full bg-gray-700 rounded-t-md" style="height: ${(d.count / maxGrowth) * 100}%;">
+                                            <div class="w-full h-full bg-sky-500 rounded-t-md transition-all duration-500"></div>
+                                        </div>
+                                        <div class="text-xs text-gray-400 mt-2">${d.month}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>`;
+
+                    // Package Popularity Doughnut Chart
+                    const packageCounts = wifiPackages.map(p => ({
+                        ...p,
+                        count: transactions.filter(t => t.packageId === p.id && t.status !== PackageStatus.REJECTED && t.type === 'PACKAGE_PURCHASE').length
+                    })).filter(p => p.count > 0).sort((a, b) => b.count - a.count);
+
+                    const totalPackagesSold = packageCounts.reduce((sum, p) => sum + p.count, 0);
+                    const doughnutCircumference = 2 * Math.PI * 50;
+                    const packagePopularityChartHTML = totalPackagesSold > 0 ? `
+                        <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700">
+                            <h3 class="text-lg font-bold text-sky-300 mb-4">Package Popularity</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                                <div class="relative w-32 h-32 mx-auto">
+                                    <svg class="w-full h-full" viewBox="0 0 120 120">
+                                        ${(() => {
+                                            const colors = ['#0ea5e9', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6'];
+                                            let offset = 0;
+                                            return packageCounts.map((p, i) => {
+                                                const percentage = (p.count / totalPackagesSold);
+                                                const dash = percentage * doughnutCircumference;
+                                                const currentOffset = offset;
+                                                offset += dash;
+                                                return `<circle style="color: ${colors[i % colors.length]}" stroke-width="20" stroke-dasharray="${dash} ${doughnutCircumference}" stroke-dashoffset="-${currentOffset}" stroke-linecap="butt" stroke="currentColor" fill="transparent" r="50" cx="60" cy="60" transform="rotate(-90 60 60)" class="transition-all duration-500"/>`;
+                                            }).join('');
+                                        })()}
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span class="text-2xl font-bold text-white">${totalPackagesSold}</span>
+                                        <span class="text-xs text-gray-400">Sold</span>
+                                    </div>
+                                </div>
+                                <ul class="text-sm space-y-2">
+                                    ${(() => {
+                                        const colors = ['bg-sky-500', 'bg-emerald-500', 'bg-amber-500', 'bg-red-500', 'bg-violet-500', 'bg-teal-500'];
+                                        return packageCounts.map((p, i) => `
+                                            <li class="flex items-center gap-2">
+                                                <span class="w-3 h-3 rounded-full ${colors[i % colors.length]}"></span>
+                                                <span class="text-gray-300">${p.name}</span>
+                                                <span class="ml-auto font-bold text-white">${((p.count / totalPackagesSold) * 100).toFixed(0)}%</span>
+                                            </li>
+                                        `).join('');
+                                    })()}
+                                </ul>
+                            </div>
+                        </div>` : '';
+
+                    mainContentHTML = `
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-6">
+                            <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700"><h3 class="text-gray-400 text-sm">Total Customers</h3><p class="text-3xl font-bold text-sky-400 mt-2">${totalCustomers}</p></div>
+                            <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700"><h3 class="text-gray-400 text-sm">Total Revenue</h3><p class="text-3xl font-bold text-sky-400 mt-2">Rs ${totalRevenue.toFixed(0)}</p></div>
+                            <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700"><h3 class="text-gray-400 text-sm">Active Subscriptions</h3><p class="text-3xl font-bold text-green-400 mt-2">${activeSubscriptions}</p></div>
+                            <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700"><h3 class="text-gray-400 text-sm">Pending Approvals</h3><p class="text-3xl font-bold text-yellow-300 mt-2">${pendingApprovals}</p></div>
+                            <div class="bg-gray-800/50 p-6 rounded-lg border border-gray-700"><h3 class="text-gray-400 text-sm">Open Complaints</h3><p class="text-3xl font-bold text-red-400 mt-2">${pendingComplaintsCount}</p></div>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            ${customerGrowthChartHTML}
+                            ${packagePopularityChartHTML}
+                        </div>`;
+                    break;
+                case 'customers':
+                    const customerCardsHTML = `<div class="md:hidden space-y-4">
+                        ${users.filter(u => u.role === Role.CUSTOMER).map(user => `
+                            <div class="customer-entry bg-gray-900/50 border border-gray-700 rounded-lg p-4" data-user-name="${user.name.toLowerCase()}" data-user-email="${user.email.toLowerCase()}" data-user-consumer-id="${user.consumerId?.toLowerCase() || ''}">
+                                <div class="flex justify-between items-start">
+                                    <div class="flex items-center gap-3">
+                                        ${generateAvatarHTML(user, 'w-10 h-10', 'text-lg')}
+                                        <div>
+                                            <p class="font-medium text-white">${user.name}</p>
+                                            <p class="text-sm text-gray-400">${user.email}</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button data-user-id="${user.id}" class="view-customer-btn text-sky-400 hover:text-sky-300 active:scale-95" title="View Details"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg></button>
+                                        <button data-user-id="${user.id}" class="delete-customer-btn text-red-400 hover:text-red-300 active:scale-95" title="Delete Customer"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-gray-600 text-sm grid grid-cols-2 gap-2">
+                                    <div><strong class="text-gray-500 block">Phone:</strong> <span class="text-gray-300">${user.phoneNumber || 'N/A'}</span></div>
+                                    <div><strong class="text-gray-500 block">Consumer ID:</strong> <span class="text-gray-400 font-mono">${user.consumerId || 'N/A'}</span></div>
+                                    <div><strong class="text-gray-500 block">Joined:</strong> <span class="text-gray-300">${new Date(user.createdAt).toLocaleDateString()}</span></div>
+                                    <div><strong class="text-gray-500 block">Total Paid:</strong> <span class="text-white font-mono">Rs ${Number(user.allTimePayment || 0).toFixed(2)}</span></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>`;
+
+                    mainContentHTML = `
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                                <h2 class="text-2xl font-bold text-sky-300">Customer Data</h2>
+                                <input type="text" id="customer-search" placeholder="Search by name, email, ID..." class="w-full sm:w-64 bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white focus:ring-2 focus:ring-sky-500 focus:outline-none" />
+                            </div>
+                            ${customerCardsHTML}
+                            <div class="overflow-x-auto hidden md:block">
+                                <table class="w-full text-left" id="customer-table">
+                                    <thead class="bg-gray-900/70">
+                                        <tr>
+                                            <th class="p-4">Customer</th><th class="p-4">Contact</th><th class="p-4">Consumer ID</th>
+                                            <th class="p-4">Joined On</th><th class="p-4">Total Paid</th><th class="p-4">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-700">
+                                        ${users.filter(u => u.role === Role.CUSTOMER).map(user => `
+                                            <tr class="customer-entry hover:bg-gray-700/50 transition-colors" data-user-name="${user.name.toLowerCase()}" data-user-email="${user.email.toLowerCase()}" data-user-consumer-id="${user.consumerId?.toLowerCase() || ''}">
+                                                <td class="p-4">
+                                                    <div class="flex items-center gap-3">
+                                                        ${generateAvatarHTML(user, 'w-10 h-10', 'text-lg')}
+                                                        <div>
+                                                            <p class="font-medium text-white">${user.name}</p>
+                                                            <p class="text-sm text-gray-400">${user.email}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="p-4 text-gray-300">${user.phoneNumber || 'N/A'}</td>
+                                                <td class="p-4 text-gray-400 font-mono">${user.consumerId || 'N/A'}</td>
+                                                <td class="p-4 text-gray-300">${new Date(user.createdAt).toLocaleDateString()}</td>
+                                                <td class="p-4 text-white font-mono">Rs ${Number(user.allTimePayment || 0).toFixed(2)}</td>
+                                                <td class="p-4">
+                                                  <div class="flex items-center gap-2">
+                                                    <button data-user-id="${user.id}" class="view-customer-btn text-sky-400 hover:text-sky-300 active:scale-95" title="View Details"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg></button>
+                                                    <button data-user-id="${user.id}" class="delete-customer-btn text-red-400 hover:text-red-300 active:scale-95" title="Delete Customer"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
+                                                  </div>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>`;
+                    break;
+                case 'add-customer':
+                    mainContentHTML = `
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6 max-w-2xl mx-auto">
+                            <h2 class="text-2xl font-bold text-sky-300 mb-6">Create New Customer Account</h2>
+                            <form id="add-customer-form" class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div><label for="c-name" class="block text-gray-300 font-medium mb-1">Full Name</label><input type="text" id="c-name" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" /></div>
+                                    <div><label for="c-email" class="block text-gray-300 font-medium mb-1">Email</label><input type="email" id="c-email" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" /></div>
+                                    <div><label for="c-password" class="block text-gray-300 font-medium mb-1">Password</label><input type="password" id="c-password" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" /></div>
+                                    <div><label for="c-phone" class="block text-gray-300 font-medium mb-1">Phone Number</label><input type="tel" id="c-phone" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" /></div>
+                                    <div class="md:col-span-2"><label for="c-address" class="block text-gray-300 font-medium mb-1">Address</label><input type="text" id="c-address" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" /></div>
+                                    <div><label for="c-cnic" class="block text-gray-300 font-medium mb-1">CNIC</label><input type="text" id="c-cnic" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" /></div>
+                                    <div><label for="c-consumerId" class="block text-gray-300 font-medium mb-1">Consumer ID</label><input type="text" id="c-consumerId" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" /></div>
+                                    <div>
+                                        <label for="c-package" class="block text-gray-300 font-medium mb-1">Initial Package</label>
+                                        <select id="c-package" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                                            <option value="">None</option>
+                                            ${wifiPackages.map(p => `<option value="${p.id}">${p.name} - Rs ${p.price}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div><label for="c-debit" class="block text-gray-300 font-medium mb-1">Pending Debit (Rs)</label><input type="number" id="c-debit" required min="0" value="0" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" /></div>
+                                    <div class="md:col-span-2"><label for="c-payment" class="block text-gray-300 font-medium mb-1">All-Time Payment (Rs)</label><input type="number" id="c-payment" required min="0" value="0" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" /></div>
+                                </div>
+                                <button type="submit" class="w-full bg-sky-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-sky-500 mt-6 active:scale-95">Create Customer</button>
+                            </form>
+                        </div>`;
+                    break;
+                case 'transactions':
+                    const transactionCardsHTML = `<div class="md:hidden space-y-4">
+                        ${transactions.sort((a,b) => new Date(b.purchaseDate) - new Date(a.purchaseDate)).map(t => {
+                            const user = users.find(u => u.id === t.userId);
+                            const aPackage = wifiPackages.find(p => p.id === t.packageId);
+                            const description = t.type === 'DEBIT_PAYMENT' ? `Debit Payment (Rs ${t.amount.toFixed(2)})` : aPackage?.name || 'N/A';
+                            let actionButtons = '';
+                            if (t.status === PackageStatus.PENDING) {
+                                actionButtons = `<button data-tx-id="${t.id}" class="approve-btn bg-green-500/20 hover:bg-green-500/40 text-green-400 font-bold py-1 px-3 rounded-md mr-2 active:scale-95">Approve</button>
+                                               <button data-tx-id="${t.id}" class="reject-btn bg-red-500/20 hover:bg-red-500/40 text-red-400 font-bold py-1 px-3 rounded-md active:scale-95">Reject</button>`;
+                            }
+                            return `<div class="bg-gray-900/50 border border-gray-700 rounded-lg p-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-bold text-white">${description}</p>
+                                        <p class="text-sm text-gray-400">For: ${user?.name || 'N/A'}</p>
+                                    </div>
+                                    ${getStatusPillHTML(t.status)}
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-gray-600 flex justify-between items-center">
+                                    <p class="text-sm text-gray-400">${new Date(t.purchaseDate).toLocaleDateString()}</p>
+                                    <div>${actionButtons}</div>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>`;
+                     mainContentHTML = `<div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                        <h2 class="text-2xl font-bold text-sky-300 mb-4">All Transactions</h2>
+                        ${transactionCardsHTML}
+                        <div class="overflow-x-auto hidden md:block">
+                            <table class="w-full text-left">
+                                <thead class="bg-gray-900/70">
+                                    <tr>
+                                        <th class="p-4">Customer</th><th class="p-4">Description</th>
+                                        <th class="p-4">Date</th><th class="p-4">Status</th>
+                                        <th class="p-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-700">
+                                    ${transactions.sort((a,b) => new Date(b.purchaseDate) - new Date(a.purchaseDate)).map(t => {
+                                        const user = users.find(u => u.id === t.userId);
+                                        const aPackage = wifiPackages.find(p => p.id === t.packageId);
+                                        const description = t.type === 'DEBIT_PAYMENT' ? `Debit Payment (Rs ${t.amount.toFixed(2)})` : aPackage?.name || 'N/A';
+                                        let actionButtons = '';
+                                        if (t.status === PackageStatus.PENDING) {
+                                            actionButtons = `<button data-tx-id="${t.id}" class="approve-btn bg-green-500/20 hover:bg-green-500/40 text-green-400 font-bold py-1 px-3 rounded-md mr-2 active:scale-95">Approve</button>
+                                                           <button data-tx-id="${t.id}" class="reject-btn bg-red-500/20 hover:bg-red-500/40 text-red-400 font-bold py-1 px-3 rounded-md active:scale-95">Reject</button>`;
+                                        }
+                                        return `<tr class="hover:bg-gray-700/50">
+                                            <td class="p-4 font-medium">${user?.name || 'N/A'}</td>
+                                            <td class="p-4 text-gray-300">${description}</td>
+                                            <td class="p-4 text-gray-300">${new Date(t.purchaseDate).toLocaleDateString()}</td>
+                                            <td class="p-4">${getStatusPillHTML(t.status)}</td>
+                                            <td class="p-4">${actionButtons}</td>
+                                        </tr>`;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                     </div>`;
+                    break;
+                case 'complaints':
+                    mainContentHTML = `<div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                        <h2 class="text-2xl font-bold text-sky-300 mb-4">Customer Complaints</h2>
+                        <div class="space-y-4">
+                            ${complaints.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).map(c => {
+                                const user = users.find(u => u.id === c.userId);
+                                return `<div class="p-4 border border-gray-700 rounded-lg">
+                                    <div class="flex flex-wrap justify-between items-center gap-2 mb-2">
+                                        <p class="font-bold text-white">${c.subject} <span class="text-sm font-normal text-gray-400">from ${user?.name || 'Unknown'}</span></p>
+                                        ${getStatusPillHTML(c.status)}
+                                    </div>
+                                    <p class="text-gray-300 mb-2">${c.message}</p>
+                                    <div class="flex flex-wrap justify-between items-center gap-2 text-sm text-gray-500">
+                                        <p>${new Date(c.timestamp).toLocaleString()}</p>
+                                        ${c.status === ComplaintStatus.PENDING ? `<button data-comp-id="${c.id}" class="resolve-btn bg-green-500/20 hover:bg-green-500/40 text-green-400 font-bold py-1 px-3 rounded-md active:scale-95">Mark as Resolved</button>` : ''}
+                                    </div>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>`;
+                    break;
+                case 'broadcast':
+                    mainContentHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                            <h2 class="text-2xl font-bold text-sky-300 mb-4">Send Notification</h2>
+                            <form id="broadcast-form" class="space-y-4">
+                                <div>
+                                    <label for="b-user" class="block text-gray-300 mb-1">Recipient</label>
+                                    <select id="b-user" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2">
+                                        <option value="all">All Customers</option>
+                                        ${users.filter(u => u.role === Role.CUSTOMER).map(u => `<option value="${u.id}">${u.name}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="b-message" class="block text-gray-300 mb-1">Message</label>
+                                    <textarea id="b-message" required rows="4" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2"></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-500 active:scale-95">Send</button>
+                            </form>
+                        </div>
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                            <h2 class="text-2xl font-bold text-sky-300 mb-4">Manual WhatsApp Message</h2>
+                            <form id="whatsapp-manual-form" class="space-y-4">
+                                <div>
+                                    <label for="wa-user" class="block text-gray-300 mb-1">Customer</label>
+                                    <select id="wa-user" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2">
+                                        <option value="">Select a customer...</option>
+                                        ${users.filter(u => u.role === Role.CUSTOMER && u.phoneNumber).map(u => `<option value="${u.id}">${u.name} (${u.phoneNumber})</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="wa-message" class="block text-gray-300 mb-1">Message</label>
+                                    <textarea id="wa-message" required rows="4" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2"></textarea>
+                                </div>
+                                <button type="submit" ${!adminAccount.whatsappNumber ? 'disabled' : ''} class="w-full bg-teal-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-500 disabled:bg-gray-600 disabled:cursor-not-allowed active:scale-95">${adminAccount.whatsappNumber ? 'Open WhatsApp' : 'Set WhatsApp Number First'}</button>
+                            </form>
+                        </div>
+                    </div>`;
+                    break;
+                case 'packages':
+                    mainContentHTML = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                            <h2 class="text-2xl font-bold text-sky-300 mb-4">Manage Packages</h2>
+                            <div class="space-y-3">
+                                ${wifiPackages.map(p => `<div class="flex justify-between items-center p-3 bg-gray-900/50 rounded-lg">
+                                    <div><p class="font-bold">${p.name} <span class="text-gray-400">(${p.speed})</span></p><p class="text-sky-400">Rs ${p.price}</p></div>
+                                    <button data-pkg-id='${JSON.stringify(p)}' class="edit-package-btn text-gray-300 hover:text-white active:scale-95">Edit</button>
+                                </div>`).join('')}
+                            </div>
+                        </div>
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                            <h2 id="package-form-title" class="text-2xl font-bold text-sky-300 mb-4">Add New Package</h2>
+                            <form id="package-form" class="space-y-4">
+                                <input type="hidden" id="p-id" />
+                                <div><label class="block text-gray-300 mb-1">Package Name</label><input type="text" id="p-name" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2" /></div>
+                                <div><label class="block text-gray-300 mb-1">Speed</label><input type="text" id="p-speed" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2" /></div>
+                                <div><label class="block text-gray-300 mb-1">Price (Rs)</label><input type="number" id="p-price" required min="1" class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2" /></div>
+                                <div class="flex gap-4">
+                                    <button type="submit" class="flex-1 bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-500 active:scale-95">Save Package</button>
+                                    <button type="button" id="clear-package-form" class="flex-1 bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-500 active:scale-95">Clear</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>`;
+                    break;
+                case 'settings':
+                    const adminUser = users.find(u => u.role === Role.ADMIN);
+                    mainContentHTML = `<div class="space-y-8 max-w-2xl mx-auto">
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                            <h2 class="text-2xl font-bold text-sky-300 mb-4">Admin Credentials</h2>
+                            <form id="admin-creds-form" class="space-y-4">
+                                <div><label class="block text-gray-300 mb-1">Admin Username/Email</label><input id="s-admin-user" type="text" value="${adminUser.email}" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2" /></div>
+                                <div><label class="block text-gray-300 mb-1">New Password</label><input id="s-admin-pass" type="password" value="${adminUser.password}" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2" /></div>
+                                <button type="submit" class="w-full bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-500 active:scale-95">Update Credentials</button>
+                            </form>
+                        </div>
+                        <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                            <h2 class="text-2xl font-bold text-sky-300 mb-4">Payment Account Details</h2>
+                            <form id="admin-account-form" class="space-y-4">
+                                <div><label class="block text-gray-300 mb-1">Account Holder Name</label><input id="s-acc-name" type="text" value="${adminAccount.name}" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2" /></div>
+                                <div><label class="block text-gray-300 mb-1">Account Number</label><input id="s-acc-num" type="text" value="${adminAccount.accountNumber}" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2" /></div>
+                                <button type="submit" class="w-full bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-500 active:scale-95">Update Account</button>
+                            </form>
+                        </div>
+                         <div class="bg-gray-800/50 border border-gray-700 rounded-lg p-6">
+                            <h2 class="text-2xl font-bold text-sky-300 mb-4">WhatsApp Number for Notifications</h2>
+                            <form id="whatsapp-form" class="space-y-4">
+                                <div><label class="block text-gray-300 mb-1">WhatsApp Number (e.g., 923001234567)</label><input id="s-whatsapp" type="tel" value="${adminAccount.whatsappNumber}" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2" /></div>
+                                <button type="submit" class="w-full bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-500 active:scale-95">Update Number</button>
+                            </form>
+                        </div>
+                    </div>`;
+                    break;
+                default:
+                    mainContentHTML = `<p>Coming soon.</p>`;
+            }
+
+            dashboardEl.innerHTML = `
+            <div class="flex min-h-screen bg-gray-900 text-white">
+                <!-- Sidebar -->
+                <aside id="admin-sidebar" class="w-64 bg-gray-800 p-4 flex-col fixed inset-y-0 left-0 z-40 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out">
+                    <div class="flex items-center gap-3 mb-8">
+                        <svg class="w-10 h-10 text-sky-400" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="100" cy="100" r="90" stroke="currentColor" strokeWidth="10" /><path d="M50 125 C 70 100, 80 75, 100 75 S 130 100, 150 125" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /><path d="M70 150 C 85 130, 115 130, 130 150" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /><path d="M90 170 C 95 160, 105 160, 110 170" stroke="currentColor" strokeWidth="8" strokeLinecap="round" /></svg>
+                        <h1 class="text-xl font-bold text-glow">AES Admin</h1>
+                    </div>
+                    <nav class="flex-grow space-y-2">${navItems.map(item => `
+                        <button data-view="${item.id}" class="admin-nav-btn w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-colors active:scale-95 ${view === item.id ? 'bg-sky-500/20 text-sky-300' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">${item.icon}</svg>
+                            <span>${item.label}</span>
+                            ${item.badge > 0 ? `<span class="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">${item.badge}</span>` : ''}
+                        </button>`).join('')}
+                    </nav>
+                </aside>
+                <!-- Main Content -->
+                <div class="flex-1 flex flex-col">
+                    <header class="flex justify-between items-center p-4 bg-gray-800/50 border-b border-gray-700 backdrop-blur-sm sticky top-0 z-20">
+                        <button id="menu-toggle" class="md:hidden text-gray-300 hover:text-white active:scale-95"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+                        <h2 class="text-xl font-semibold capitalize">${view.replace('-', ' ')}</h2>
+                        <div class="flex items-center gap-4">
+                            <button class="theme-switcher-btn text-gray-300 hover:text-white transition-colors active:scale-95"></button>
+                             <div class="flex items-center gap-2">
+                                ${generateAvatarHTML(currentUser, 'w-8 h-8', 'text-sm')}
+                                <span class="hidden sm:inline">${currentUser.name}</span>
+                            </div>
+                            <button id="admin-logout-btn" class="text-gray-300 hover:text-white active:scale-95" title="Logout"><svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg></button>
+                        </div>
+                    </header>
+                    <main class="flex-1 p-6 animate-fade-in">${mainContentHTML}</main>
+                </div>
+            </div>`;
+        }
+
+        function createModal(id, title, content, actionsHTML = '', size = 'max-w-lg') {
+            const container = document.getElementById('main-modal-container');
+            container.innerHTML = `
+            <div id="${id}" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/70 backdrop-blur-sm animate-fade-in">
+                <div class="modal-content-wrapper w-full ${size} bg-gray-800 border border-gray-700 rounded-lg shadow-2xl shadow-sky-500/10">
+                    <div class="flex justify-between items-center p-4 border-b border-gray-700">
+                        <h2 class="text-xl font-bold text-sky-300">${title}</h2>
+                        <button class="close-modal-btn text-gray-400 hover:text-white text-3xl font-bold leading-none active:scale-95">&times;</button>
+                    </div>
+                    <div class="p-6">${content}</div>
+                    ${actionsHTML ? `<div class="p-4 bg-gray-900/50 rounded-b-lg flex flex-wrap justify-end items-center gap-3">${actionsHTML}</div>` : ''}
+                </div>
+            </div>`;
+            document.querySelector(`#${id} .close-modal-btn`)?.addEventListener('click', () => closeModal(id));
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if(modal) {
+                modal.classList.add('animate-fade-out'); // You'd need to define this animation
+                setTimeout(() => modal.remove(), 300);
+            } else {
+                document.getElementById('main-modal-container').innerHTML = '';
+            }
+        }
+
+        // --- MOBILE SWIPE HANDLERS ---
+        let touchStartX = 0;
+        let touchCurrentX = 0;
+        const minSwipeDistance = 50;
+
+        function handleSidebarSwipeStart(e) {
+            const sidebar = document.getElementById('admin-sidebar');
+            if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
+                touchStartX = e.touches[0].clientX;
+                touchCurrentX = e.touches[0].clientX;
+            }
+        }
+
+        function handleSidebarSwipeMove(e) {
+            const sidebar = document.getElementById('admin-sidebar');
+            if (sidebar && !sidebar.classList.contains('-translate-x-full') && touchStartX !== 0) {
+                touchCurrentX = e.touches[0].clientX;
+            }
+        }
+
+        function handleSidebarSwipeEnd(e) {
+            const sidebar = document.getElementById('admin-sidebar');
+            if (!sidebar || sidebar.classList.contains('-translate-x-full') || touchStartX === 0) return;
+
+            const swipeDistance = touchStartX - touchCurrentX;
+            if (swipeDistance > minSwipeDistance) {
+                sidebar.classList.add('-translate-x-full');
+                document.getElementById('admin-overlay').classList.add('hidden');
+            }
+            
+            touchStartX = 0;
+            touchCurrentX = 0;
+        }
+        
+        // --- APP INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.addEventListener('click', initAudioContext, { once: true });
+            
+            // --- Global Click Handler for Dynamic Elements ---
+            document.body.addEventListener('click', (e) => {
+                const target = e.target;
+                
+                // Theme switcher
+                if (target.closest('.theme-switcher-btn')) { toggleTheme(); }
+                // Logout buttons
+                if (target.closest('#customer-logout-btn') || target.closest('#admin-logout-btn')) { handleLogout(); }
+                // Nav buttons
+                if (target.closest('.customer-nav-btn')) { playSound('click'); renderCustomerDashboard(target.closest('.customer-nav-btn').dataset.view); }
+                if (target.closest('.admin-nav-btn')) { playSound('click'); renderAdminDashboard(target.closest('.admin-nav-btn').dataset.view); }
+                // Download Invoice
+                if (target.closest('.download-invoice-btn')) {
+                    playSound('click');
+                    const txId = target.closest('.download-invoice-btn').dataset.txId;
+                    const tx = transactions.find(t => t.id === txId);
+                    if(tx) {
+                        const user = users.find(u => u.id === tx.userId);
+                        const pkg = wifiPackages.find(p => p.id === tx.packageId);
+                        if(user && pkg) generateInvoice(tx, user, pkg);
+                    }
+                }
+                // Admin Actions
+                if (target.closest('.approve-btn')) { handleApprove(target.closest('.approve-btn').dataset.txId); }
+                if (target.closest('.reject-btn')) { handleReject(target.closest('.reject-btn').dataset.txId); }
+                if (target.closest('.resolve-btn')) { handleResolveComplaint(target.closest('.resolve-btn').dataset.compId); }
+                if (target.closest('.delete-customer-btn')) { 
+                    const userId = target.closest('.delete-customer-btn').dataset.userId;
+                    if(confirm('Are you sure you want to delete this customer? This action cannot be undone.')) {
+                        handleDeleteCustomer(userId);
+                    }
+                }
+                if (target.closest('.view-customer-btn')) {
+                    playSound('click');
+                    const userId = target.closest('.view-customer-btn').dataset.userId;
+                    const user = users.find(u => u.id === userId);
+                    if (!user) return;
+
+                    const userTransactions = transactions
+                        .filter(t => t.userId === user.id)
+                        .sort((a, b) => new Date(b.purchaseDate) - new Date(a.purchaseDate))
+                        .slice(0, 5);
+                        
+                    const firstPackageTx = transactions
+                        .filter(t => t.userId === user.id && t.type === 'PACKAGE_PURCHASE')
+                        .sort((a, b) => new Date(a.purchaseDate) - new Date(b.purchaseDate))[0];
+
+                    let initialPackageHTML = '';
+                    if (firstPackageTx) {
+                        const initialPackage = wifiPackages.find(p => p.id === firstPackageTx.packageId);
+                        if (initialPackage) {
+                            initialPackageHTML = `
+                                <div><strong class="text-gray-500">Initial Package:</strong> ${initialPackage.name}</div>
+                                <div><strong class="text-gray-500">Initial Payment:</strong> Rs ${initialPackage.price.toFixed(2)}</div>
+                            `;
+                        }
+                    }
+
+                    const transactionsHTML = userTransactions.length > 0 ? `
+                        <h4 class="text-md font-bold text-sky-400 mt-6 mb-2">Recent Transactions</h4>
+                        <ul class="space-y-2 text-sm">
+                            ${userTransactions.map(t => {
+                                const aPackage = wifiPackages.find(p => p.id === t.packageId);
+                                const description = t.type === 'DEBIT_PAYMENT' ? `Debit Payment (Rs ${t.amount.toFixed(2)})` : aPackage?.name || 'N/A';
+                                return `<li class="flex justify-between items-center p-2 bg-gray-900/50 rounded-md">
+                                            <div>
+                                                <p class="text-gray-300">${description}</p>
+                                                <p class="text-xs text-gray-500">${new Date(t.purchaseDate).toLocaleDateString()}</p>
+                                            </div>
+                                            ${getStatusPillHTML(t.status)}
+                                        </li>`;
+                            }).join('')}
+                        </ul>` : '<p class="text-sm text-gray-400 mt-4">No recent transactions.</p>';
+
+                    const modalContent = `
+                        <div class="flex items-center gap-4 mb-6">
+                            ${generateAvatarHTML(user, 'w-16 h-16', 'text-3xl')}
+                            <div>
+                                <h3 class="text-2xl font-bold text-white">${user.name}</h3>
+                                <p class="text-gray-400">${user.email}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-gray-300">
+                            <div><strong class="text-gray-500">Phone:</strong> ${user.phoneNumber || 'N/A'}</div>
+                            <div><strong class="text-gray-500">Consumer ID:</strong> ${user.consumerId || 'N/A'}</div>
+                            <div class="sm:col-span-2"><strong class="text-gray-500">Address:</strong> ${user.address || 'N/A'}</div>
+                            <div><strong class="text-gray-500">CNIC:</strong> ${user.cnic || 'N/A'}</div>
+                            <div><strong class="text-gray-500">Joined:</strong> ${new Date(user.createdAt).toLocaleDateString()}</div>
+                            ${initialPackageHTML}
+                            <div><strong class="text-gray-500">Total Paid:</strong> Rs ${Number(user.allTimePayment || 0).toFixed(2)}</div>
+                            <div><strong class="text-gray-500">Pending Debit:</strong> Rs ${Number(user.debitInfo || 0).toFixed(2)}</div>
+                        </div>
+                        ${transactionsHTML}
+                    `;
+
+                    createModal('customer-details-modal', 'Customer Details', modalContent, 
+                        `<button class="close-modal-btn bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-500 active:scale-95">Close</button>`, 'max-w-2xl');
+                }
+                // Edit Package Button
+                if (target.closest('.edit-package-btn')) {
+                    playSound('click');
+                    const pkg = JSON.parse(target.closest('.edit-package-btn').dataset.pkgId);
+                    document.getElementById('package-form-title').textContent = 'Edit Package';
+                    document.getElementById('p-id').value = pkg.id;
+                    document.getElementById('p-name').value = pkg.name;
+                    document.getElementById('p-speed').value = pkg.speed;
+                    document.getElementById('p-price').value = pkg.price;
+                }
+                if (target.closest('#clear-package-form')) {
+                    playSound('click');
+                    document.getElementById('package-form').reset();
+                    document.getElementById('p-id').value = '';
+                    document.getElementById('package-form-title').textContent = 'Add New Package';
+                }
+                // Pay Debit
+                if (target.closest('#pay-debit-btn')) {
+                    const debitAmount = Number(currentUser.debitInfo || 0).toFixed(2);
+                    createModal('pay-debit-modal', 'Pay Pending Debit', `
+                        <p class="text-gray-300 mb-4">You have a pending debit of <strong class="text-white">Rs ${debitAmount}</strong>.</p>
+                        <p class="text-gray-300 mb-4">Please make a payment to the following account and enter the transaction ID below:</p>
+                        <div class="bg-gray-900/50 p-4 rounded-lg border border-gray-600">
+                            <p><strong class="text-gray-400">Account Name:</strong> ${adminAccount.name}</p>
+                            <p><strong class="text-gray-400">Account Number:</strong> ${adminAccount.accountNumber}</p>
+                        </div>
+                        <form id="debit-payment-form" class="mt-4">
+                           <label for="debit-tx-id" class="block mb-2 font-medium">Transaction ID</label>
+                           <input type="text" id="debit-tx-id" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" />
+                           <input type="hidden" id="debit-amount" value="${debitAmount}" />
+                           <button type="submit" class="w-full mt-4 bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-500 active:scale-95">Submit for Approval</button>
+                        </form>
+                    `);
+                }
+                
+                // Mobile Menu Toggle
+                if(target.closest('#menu-toggle') || target.closest('#admin-overlay')) {
+                    document.getElementById('admin-sidebar').classList.toggle('-translate-x-full');
+                    document.getElementById('admin-overlay').classList.toggle('hidden');
+                }
+                
+                // Notifications
+                if(target.closest('#notification-bell')) {
+                    playSound('click');
+                    const isMobile = window.innerWidth < 768;
+                    const { listHTML } = getNotificationListHTML();
+                    
+                    if(isMobile) {
+                        createModal('notification-modal', 'Notifications', 
+                            `<div class="max-h-[70vh] overflow-y-auto">${listHTML}</div>`,
+                            `<button id="mark-all-read-btn" class="bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-500 active:scale-95">Mark All as Read</button><button class="close-modal-btn bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-500 active:scale-95">Close</button>`
+                        );
+                    } else {
+                        const dropdown = document.getElementById('notification-dropdown');
+                        dropdown.classList.toggle('hidden');
+                        if(!dropdown.classList.contains('hidden')) {
+                            dropdown.innerHTML = `
+                                <div class="absolute right-0 mt-2 w-80 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl z-20">
+                                    <div class="p-3 border-b border-gray-700 flex justify-between items-center">
+                                        <h3 class="font-bold">Notifications</h3>
+                                        <button id="mark-all-read-btn" class="text-xs text-sky-400 hover:underline active:scale-95">Mark all as read</button>
+                                    </div>
+                                    <div class="max-h-96 overflow-y-auto">${listHTML}</div>
+                                </div>`;
+                        }
+                    }
+                } else if (!target.closest('#notification-dropdown') && !target.closest('#notification-modal')) {
+                    document.getElementById('notification-dropdown')?.classList.add('hidden');
+                    const modal = document.getElementById('notification-modal');
+                    if(modal && !target.closest('.modal-content-wrapper')) closeModal('notification-modal');
+                }
+                if (target.closest('#mark-all-read-btn')) {
+                    handleMarkAllRead();
+                    const modal = document.getElementById('notification-modal');
+                    if(modal) closeModal('notification-modal');
+                }
+            });
+
+            // --- Body Submit Handler for Dynamic Forms ---
+            document.body.addEventListener('submit', (e) => {
+                const formId = e.target.id;
+                
+                if (formId === 'debit-payment-form') {
+                    e.preventDefault();
+                    playSound('click');
+                    const txId = document.getElementById('debit-tx-id').value;
+                    const amount = parseFloat(document.getElementById('debit-amount').value);
+                    handleDebitPayment(txId, amount);
+                    closeModal('pay-debit-modal');
+                }
+            });
+            
+            // --- Buy Button Handler (attaches to main content area)
+            document.body.addEventListener('click', (e) => {
+                if(e.target.matches('.buy-btn')) {
+                    playSound('click');
+                    const packageId = e.target.dataset.packageId;
+                    const aPackage = wifiPackages.find(p => p.id === packageId);
+                    if(!aPackage) return;
+
+                    createModal('purchase-modal', `Purchase: ${aPackage.name}`,
+                    ` <p class="text-gray-300 mb-4">To purchase the <strong class="text-white">${aPackage.name}</strong> for <strong class="text-white">Rs ${aPackage.price}</strong>, please make a payment to the account below and enter the transaction ID.</p>
+                        <div class="bg-gray-900/50 p-4 rounded-lg border border-gray-600">
+                            <p><strong class="text-gray-400">Account Name:</strong> ${adminAccount.name}</p>
+                            <p><strong class="text-gray-400">Account Number:</strong> ${adminAccount.accountNumber}</p>
+                        </div>
+                        <form id="purchase-form" data-package-id="${packageId}" class="mt-4">
+                           <label for="purchase-tx-id" class="block mb-2 font-medium">Transaction ID</label>
+                           <input type="text" id="purchase-tx-id" required class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-2 text-white" />
+                           <button type="submit" class="w-full mt-4 bg-sky-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-500 active:scale-95">Submit for Approval</button>
+                        </form>
+                    `);
+                    
+                    document.getElementById('purchase-form').addEventListener('submit', (ev) => {
+                        ev.preventDefault();
+                        const txId = document.getElementById('purchase-tx-id').value;
+                        handlePurchase(packageId, txId);
+                        closeModal('purchase-modal');
+                    });
+                }
+            });
+            
+            // --- Form Handlers (for static forms) ---
+            document.getElementById('login-form')?.addEventListener('submit', handleLogin);
+
+            document.body.addEventListener('submit', (e) => {
+                const form = e.target;
+                if (!form) return;
+                
+                switch(form.id) {
+                    case 'complaint-form':
+                        e.preventDefault();
+                        handleComplaintSubmit(currentUser.id, form.subject.value, form.message.value);
+                        form.reset();
+                        break;
+                    case 'admin-creds-form':
+                        e.preventDefault();
+                        handleUpdateCredentials(form['s-admin-user'].value, form['s-admin-pass'].value);
+                        break;
+                    case 'admin-account-form':
+                        e.preventDefault();
+                        handleUpdateAdminAccount(form['s-acc-name'].value, form['s-acc-num'].value);
+                        break;
+                    case 'whatsapp-form':
+                         e.preventDefault();
+                         handleUpdateWhatsAppNumber(form['s-whatsapp'].value);
+                         break;
+                    case 'package-form':
+                        e.preventDefault();
+                        handleUpdatePackage({
+                            id: form['p-id'].value || null,
+                            name: form['p-name'].value,
+                            speed: form['p-speed'].value,
+                            price: parseFloat(form['p-price'].value)
+                        });
+                        form.reset();
+                        document.getElementById('p-id').value = '';
+                        document.getElementById('package-form-title').textContent = 'Add New Package';
+                        break;
+                    case 'broadcast-form':
+                        e.preventDefault();
+                        handleSendNotification(form['b-user'].value, form['b-message'].value);
+                        form.reset();
+                        renderAdminDashboard('broadcast');
+                        break;
+                    case 'add-customer-form':
+                         e.preventDefault();
+                         const success = handleAddCustomer({
+                             name: form['c-name'].value, email: form['c-email'].value, password: form['c-password'].value,
+                             phoneNumber: form['c-phone'].value, address: form['c-address'].value,
+                             cnic: form['c-cnic'].value, consumerId: form['c-consumerId'].value
+                         }, form['c-package'].value, parseFloat(form['c-payment'].value), parseFloat(form['c-debit'].value));
+                         if (success) form.reset();
+                         break;
+                    case 'whatsapp-manual-form':
+                         e.preventDefault();
+                         const userId = form['wa-user'].value;
+                         const message = form['wa-message'].value;
+                         const customer = users.find(u => u.id === userId);
+                         if (customer && customer.phoneNumber && adminAccount.whatsappNumber) {
+                            const whatsappUrl = `https://wa.me/${customer.phoneNumber}?text=${encodeURIComponent(message)}`;
+                            window.open(whatsappUrl, '_blank');
+                            form.reset();
+                         } else {
+                            alert('Please select a customer with a phone number and ensure admin WhatsApp number is set.');
+                         }
+                         break;
+                }
+            });
+
+            // Customer search filter
+            document.body.addEventListener('input', (e) => {
+                if (e.target.id === 'customer-search') {
+                    const searchTerm = e.target.value.toLowerCase();
+                    document.querySelectorAll('.customer-entry').forEach(entry => {
+                        const name = entry.dataset.userName || '';
+                        const email = entry.dataset.userEmail || '';
+                        const consumerId = entry.dataset.userConsumerId || '';
+                        const isVisible = name.includes(searchTerm) || email.includes(searchTerm) || consumerId.includes(searchTerm);
+                        entry.classList.toggle('hidden', !isVisible);
+                    });
+                }
+            });
+
+            // --- MOBILE SWIPE LISTENERS ---
+            document.body.addEventListener('touchstart', handleSidebarSwipeStart, { passive: true });
+            document.body.addEventListener('touchmove', handleSidebarSwipeMove, { passive: true });
+            document.body.addEventListener('touchend', handleSidebarSwipeEnd, { passive: true });
+
+            // --- REAL-TIME SYNC LISTENER ---
+            const syncChannel = new BroadcastChannel('aes_portal_sync');
+            syncChannel.onmessage = (event) => {
+                if (event.data.type === 'UPDATE_STATE') {
+                    loadState(); // Reload state from localStorage
+                    renderCurrentView(); // Re-render the UI with fresh data
+                }
+            };
+
+            // --- INITIALIZATION LOGIC ---
+            setTimeout(() => {
+                applyTheme(localStorage.getItem('aes_portal_theme') || 'dark');
+                navigateTo('AUTH_SCREEN');
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
